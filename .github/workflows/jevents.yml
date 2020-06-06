@@ -20,6 +20,5 @@ jobs:
       run: |
         cd jevents
         ./listevents
-        ./examples/jestat true
         ./tester
   
