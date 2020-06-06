@@ -18,5 +18,5 @@ jobs:
         cd jevents ; make
     - name: tester
       run: |
-        #cd jevents ; ./tester disabled for now, need more mocking for the github env
+        cd jevents ; ./tester
   
