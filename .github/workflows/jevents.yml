@@ -18,5 +18,8 @@ jobs:
         cd jevents ; make
     - name: tester
       run: |
-        cd jevents ; ./tester
+        cd jevents
+        ./listevents
+        ./jestat true
+        ./tester
   
