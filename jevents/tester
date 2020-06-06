@@ -11,17 +11,20 @@ trap failed ERR 0
 
 PATH=.:./examples:$PATH
 
-
 $V listevents > l
+if [ -d /sys/devices/cpu ] ; then
 [ $(wc -l < l) -gt 50 ] 
 grep -q offcore_response l
+fi
 
 if grep -q br_misp_retired.taken l ; then
 	E=br_misp_retired.taken
 elif grep -q br_misp_retired.near_taken l ; then
 	E=br_misp_retired.near_taken
-else
+elif grep -q instructions l ; then
 	E=instructions
+else
+	E=cycles
 fi
 
 $V jestat true
