@@ -27,12 +27,14 @@ else
 	E=cycles
 fi
 
-$V jestat true
+$V jestat -e $E true
+if [ -d /sys/devices/cpu ] ; then
 $V jestat -e cpu-cycles,cpu_clk_unhalted.ref_tsc,$E true
 $V jestat -e "{cpu-cycles,cpu_clk_unhalted.ref_tsc},{$E,cache-references}" -a sleep 1
 $V jestat -a sleep 1
 $V jestat -a -e "uops_executed.thread:k" sleep 1
 $V jestat -a -e "offcore_response.all_data_rd.any_response:config1=0x1" sleep 1
+fi
 $V jestat -A -a -I 500 cycles sleep 2
 
 # test all events
@@ -55,9 +57,11 @@ $V showevent $E
 
 $V event-rmap $E
 
+if [ -d /sys/devices/cpu ] ; then
 $V examples/addr
 examples/rtest
 examples/rtest2
+fi
 
 trap "" ERR 0
 
