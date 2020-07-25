@@ -1,3 +1,4 @@
+
 ![pmu-tools](http://halobates.de/pmu-tools.png)
 
 ![Python linting and testing](https://github.com/andikleen/pmu-tools/workflows/Python%20linting%20and%20testing/badge.svg)
@@ -8,6 +9,33 @@ analysis on Intel CPUs on top of [Linux perf](https://perf.wiki.kernel.org/index
 
 
 pmu-tools 是运行在 Intel CPU 的 Linux 上的一个集工具配置文件收集和性能分析工具。它有一个包装器来“穿孔”,提供了一个完整的核心事件列表为常见的英特尔cpu。这允许您使用所有英特尔事件,不仅仅是内装式事件的穿孔。支持英特尔“offcore”事件在较旧的系统不支持这个在英特尔。Offcore事 件允许您配置文件位置的内存访问外CPU的缓存。它实现了解决了一些问题与事件offcore Sandy Bridge EP(Intel Xeon E5第一代)。这是自动启用了各自的活动,也可作为一个独立的程序。有些实用程序来访问pci msrs空间或在命令行上。一个实用程序程序直接从用户空间的测压装置(pmumon.py)计算。这主要是用于测试和实验目的。一个图书馆自我剖析与 Linux因为Linux 3.3(对于自我剖析在旧的内核,您就可以使用简单的测压装置。一个示例程序地址剖析在Nehalem和后来英特尔cpu(addr)。一个程序,打印当 前运行的事件(事件rmap)。
+
+现代 CPU 大多具有性能监控单元（Performance Monitoring Unit, PMU)，用于统计系统中发生的特定硬件事件，例如缓存未命中（Cache Miss）或者分支预测错误（Branch Misprediction）等。同时，多个事件可以结合计算出一些高级指标，例如每指令周期数（CPI），缓存命中率等。一个特定的微体系架构可以通过 PMU 提供数百个事件。对于发现和解决特定的性能问题，我们很难从这数百个事件中挑选出那些真
+正有用的事件。 这需要我们深入了解微体系架构的设计和 PMU 规范，才能从原始事件数据中获取有用的信息。
+
+自顶向下的微体系架构分析方法（Top-Down Microarchitecture Analysis Method, TMAM）可以在乱序执行的内核中识别性能瓶颈，其通用的分层框架和技术可以应用于许多乱序执行的微体系架构。TMAM 是基于事件的度量标准的分层组织，用于确定应用程序中的主要性能瓶颈，显示运行应用程序时 CPU 流水线的使用情况。
+
+
+
+# 概述
+
+现代高性能 CPU 的流水线非常复杂。 一般来说，CPU 流水线在概念上分为两部分，即**前端（Front-end）和后端（Back-end）**。**Front-end 负责获取程序代码指令**，并将其解码为一个或多个称为**微操作（uOps）**的底层硬件指令。uOps 被分配给 Back-end 进行执行，**Back-end 负责监控 uOp 的数据何时可用，并在可用的执行单元中执行 uOp**. uOp 执行的完成称为**退役（Retirement）**，uOp 的执行结果提交并反馈到>架构状态（CPU 寄存器或写回内存）。 通常情况下，大多数 uOps 通过流水线正常执行然后退役，但有时候**投机执行**的 uOps 可能会**在退役前被取消**，例如在**分支预测错误**的情况下。
+
+在最近的英特尔微体系结构上，流水线的 Front-end **每个 CPU 周期（cycle）可以分配4个 uOps** ，而 Back-end 可以在每个周期中退役4个 uOps。**流水线槽（pipeline slot）** 代表处理一个 uOp 所需的硬件资源。 TMAM 假定对于每个 CPU 核心，在每个 CPU 周期内，有4个 pipeline slot 可用，然后使用专门设计的 PMU 事件来测量这些 pipeline slot 的使用情况。在每个 CPU 周期中，pipeline slot 可以是空的或者被 uOp 填充。 如果在一个 CPU 周期内某个**pipeline slot 是空的**，称之为一次**停顿（stall）**。如果 CPU 经常停顿，系统性能肯定是受到影响的。TMAM 的目标就是确定系统性能问题的主要瓶颈。
+
+下图展示并总结了乱序执行微体系架构中自顶向下确定性能瓶颈的分类方法。这种自顶向下的分析框架的优点是一种结构化的方法，有选择地探索可能的性能瓶颈区域。 带有权重的层次化节点，使得我们能够将分析的重点放在确实重要的问题上，同时无视那些不重要的问题。
+
+
+例如，如果应用程序性能受到指令提取问题的严重影响， TMAM 将它分类为 Front-end Bound 这个大类。 用户或者工具可以向下探索并仅聚焦在 Front-end Bound 这个分类上，直到找到导致应用程序性能瓶颈的直接原因或一类原因。
+
+
+# 在最顶层，TMAM 将 pipeline slot 分为四个主要类别：
+
+## Front-end Bound 前端瓶颈
+
+* 1、Front-end Bound 表示 pipeline 的 Front-end 不足以供应 Back-end。
+* 2、Front-end 是 pipeline 的一部分，负责交付 uOps 给 Back-end 执行。
+* 3、Front-end Bound 进一步分为 Fetch Latency（例如，ICache or ITLB misses，指令延迟）和 Fetch Bandwidth（例如，sub-optimal decoding，取指带宽）。
 
 
 # Recent new features:
