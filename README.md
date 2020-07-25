@@ -14,8 +14,7 @@ analysis on Intel CPUs on top of [Linux perf](https://perf.wiki.kernel.org/index
 
 pmu-tools 是运行在 Intel CPU 的 Linux 上的一个集工具配置文件收集和性能分析工具。它有一个包装器来“穿孔”,提供了一个完整的核心事件列表为常见的英特尔cpu。这允许您使用所有英特尔事件,不仅仅是内装式事件的穿孔。支持英特尔“offcore”事件在较旧的系统不支持这个在英特尔。Offcore事 件允许您配置文件位置的内存访问外CPU的缓存。它实现了解决了一些问题与事件offcore Sandy Bridge EP(Intel Xeon E5第一代)。这是自动启用了各自的活动,也可作为一个独立的程序。有些实用程序来访问pci msrs空间或在命令行上。一个实用程序程序直接从用户空间的测压装置(pmumon.py)计算。这主要是用于测试和实验目的。一个图书馆自我剖析与 Linux因为Linux 3.3(对于自我剖析在旧的内核,您就可以使用简单的测压装置。一个示例程序地址剖析在Nehalem和后来英特尔cpu(addr)。一个程序,打印当 前运行的事件(事件rmap)。
 
-现代 CPU 大多具有性能监控单元（Performance Monitoring Unit, PMU)，用于统计系统中发生的特定硬件事件，例如缓存未命中（Cache Miss）或者分支预测错误（Branch Misprediction）等。同时，多个事件可以结合计算出一些高级指标，例如每指令周期数（CPI），缓存命中率等。一个特定的微体系架构可以通过 PMU 提供数百个事件。对于发现和解决特定的性能问题，我们很难从这数百个事件中挑选出那些真
-正有用的事件。 这需要我们深入了解微体系架构的设计和 PMU 规范，才能从原始事件数据中获取有用的信息。
+现代 CPU 大多具有**性能监控单元（Performance Monitoring Unit, PMU)**，用于统计系统中发生的特定硬件事件，例如 **缓存未命中（Cache Miss）** 或者 **分支预测错误（Branch Misprediction）**等。同时，多个事件可以结合计算出一些高级指标，例如每指令周期数（CPI），缓存命中率等。一个特定的微体系架构可以通过 PMU 提供数百个事件。对于发现和解决特定的性能问题，我们很难从这数百个事件中挑选出那些真正有用的事件。 这需要我们深入了解微体系架构的设计和 PMU 规范，才能从原始事件数据中获取有用的信息。
 
 自顶向下的微体系架构分析方法（Top-Down Microarchitecture Analysis Method, TMAM）可以在乱序执行的内核中识别性能瓶颈，其通用的分层框架和技术可以应用于许多乱序执行的微体系架构。TMAM 是基于事件的度量标准的分层组织，用于确定应用程序中的主要性能瓶颈，显示运行应用程序时 CPU 流水线的使用情况。
 
@@ -40,6 +39,19 @@ pmu-tools 是运行在 Intel CPU 的 Linux 上的一个集工具配置文件收�
 * 1、Front-end Bound 表示 pipeline 的 Front-end 不足以供应 Back-end。
 * 2、Front-end 是 pipeline 的一部分，负责交付 uOps 给 Back-end 执行。
 * 3、Front-end Bound 进一步分为 Fetch Latency（例如，ICache or ITLB misses，指令延迟）和 Fetch Bandwidth（例如，sub-optimal decoding，取指带宽）。
+
+## Back-end Bound 后端瓶颈
+* 1、1Back-end Bound 表示由于缺乏接受执行新操作所需的后端资源而导致
+* 2、停顿的 pipeline slot 。它进一步分为分为 Memory Bound （由于内存子系统造成的执行停顿）和 Core Bound（执行单元压力 Compute Bound 或者缺少指令级并行 ILP）。
+
+
+## Bad Speculation 错误的推测  导致的流水线槽 浪费
+* 1、Bad Speculation 表示由于分支预测错误导致的 pipeline slot 被浪费，
+* 2、主要包括 (1) 执行最终被取消的 uOps 的 pipeline slot，以及 (2) 由于从先前的错误猜测中恢复而导致阻塞的 pipeline slot。
+
+
+
+
 
 
 # Recent new features:
