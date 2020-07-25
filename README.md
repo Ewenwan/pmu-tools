@@ -19,7 +19,6 @@ pmu-tools 是运行在 Intel CPU 的 Linux 上的一个集工具配置文件收�
 自顶向下的微体系架构分析方法（Top-Down Microarchitecture Analysis Method, TMAM）可以在乱序执行的内核中识别性能瓶颈，其通用的分层框架和技术可以应用于许多乱序执行的微体系架构。TMAM 是基于事件的度量标准的分层组织，用于确定应用程序中的主要性能瓶颈，显示运行应用程序时 CPU 流水线的使用情况。
 
 
-
 # 概述
 
 现代高性能 CPU 的流水线非常复杂。 一般来说，CPU 流水线在概念上分为两部分，即**前端（Front-end）和后端（Back-end）**。**Front-end 负责获取程序代码指令**，并将其解码为一个或多个称为**微操作（uOps）**的底层硬件指令。uOps 被分配给 Back-end 进行执行，**Back-end 负责监控 uOp 的数据何时可用，并在可用的执行单元中执行 uOp**. uOp 执行的完成称为**退役（Retirement）**，uOp 的执行结果提交并反馈到>架构状态（CPU 寄存器或写回内存）。 通常情况下，大多数 uOps 通过流水线正常执行然后退役，但有时候**投机执行**的 uOps 可能会**在退役前被取消**，例如在**分支预测错误**的情况下。
@@ -34,29 +33,39 @@ pmu-tools 是运行在 Intel CPU 的 Linux 上的一个集工具配置文件收�
 
 # 在最顶层，TMAM 将 pipeline slot 分为四个主要类别：
 
-## Front-end Bound 前端瓶颈
+## 1. Front-end Bound 前端瓶颈             停顿的 pipeline slot
 
 * 1、Front-end Bound 表示 pipeline 的 Front-end 不足以供应 Back-end。
 * 2、Front-end 是 pipeline 的一部分，负责交付 uOps 给 Back-end 执行。
 * 3、Front-end Bound 进一步分为 Fetch Latency（例如，ICache or ITLB misses，指令延迟）和 Fetch Bandwidth（例如，sub-optimal decoding，取指带宽）。
 
-## Back-end Bound 后端瓶颈
+## 2. Back-end Bound 后端瓶颈             停顿的 pipeline slot
 * 1、1Back-end Bound 表示由于缺乏接受执行新操作所需的后端资源而导致
 * 2、停顿的 pipeline slot 。它进一步分为分为 Memory Bound （由于内存子系统造成的执行停顿）和 Core Bound（执行单元压力 Compute Bound 或者缺少指令级并行 ILP）。
 
 
-## Bad Speculation 错误的推测  导致的流水线槽 浪费
+## 3. Bad Speculation 错误的推测  导致的流水线槽 浪费   非停顿的 pipeline slot
 * 1、Bad Speculation 表示由于分支预测错误导致的 pipeline slot 被浪费，
 * 2、主要包括 (1) 执行最终被取消的 uOps 的 pipeline slot，以及 (2) 由于从先前的错误猜测中恢复而导致阻塞的 pipeline slot。
 
 
-## Retiring 退役 正常秩执行结束
+## 4. Retiring 退役 正常秩执行结束                     非停顿的 pipeline slot
 
 * 1、Retiring 表示运行有效 uOp 的 pipeline slot。 理想情况下，我们希望看到所有的 pipeline slot 都能归类到 Retiring.
 
 * 2、因为它与 IPC 密切相关。 尽管如此，高 Retiring  比率并不意味着没有提升优化的空间。
 
 
+后两者 3、4  表示非停顿的 pipeline slot，前两者表示停顿的 pipeline slot。 
+
+下图描述了一个简单的决策树来展示向下分析的过程。如果一个 pipeline slot 被某个 uOp 使用，它将被分类为 Retiring 或 Bad Speculation，具体取决于它是否最终提交。
+
+如果 pipeline 的 Back-end 部分不能接受更多操作（也称为 Back-end Stall），未使用的 pipeline  slot 被分类为 Back-end Bound。Front-end Bound 则表示>在没有 Back-end Stall 的情况下没有操作（uOps）被分配执行。
+
+
+        uOp 微操作 被分配? alloc
+	| 是             | 否 （pipeline slot流水线停顿导致 指令未未分配执行）
+      
 
 # Recent new features:
 
