@@ -50,7 +50,11 @@ pmu-tools 是运行在 Intel CPU 的 Linux 上的一个集工具配置文件收�
 * 2、主要包括 (1) 执行最终被取消的 uOps 的 pipeline slot，以及 (2) 由于从先前的错误猜测中恢复而导致阻塞的 pipeline slot。
 
 
+## Retiring 退役 正常秩执行结束
 
+* 1、Retiring 表示运行有效 uOp 的 pipeline slot。 理想情况下，我们希望看到所有的 pipeline slot 都能归类到 Retiring.
+
+* 2、因为它与 IPC 密切相关。 尽管如此，高 Retiring  比率并不意味着没有提升优化的空间。
 
 
 
