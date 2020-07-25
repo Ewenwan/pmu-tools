@@ -1,3 +1,4 @@
+# 性能分析 建模
 
 ![pmu-tools](http://halobates.de/pmu-tools.png)
 
@@ -6,6 +7,9 @@
 
 pmu tools is a collection of tools for profile collection and performance
 analysis on Intel CPUs on top of [Linux perf](https://perf.wiki.kernel.org/index.php/Main_Page). This uses performance counters in the CPU.
+
+[其他参考 Performance Prediction Toolkit (PPT) ](https://github.com/Ewenwan/PPT)
+
 
 
 pmu-tools 是运行在 Intel CPU 的 Linux 上的一个集工具配置文件收集和性能分析工具。它有一个包装器来“穿孔”,提供了一个完整的核心事件列表为常见的英特尔cpu。这允许您使用所有英特尔事件,不仅仅是内装式事件的穿孔。支持英特尔“offcore”事件在较旧的系统不支持这个在英特尔。Offcore事 件允许您配置文件位置的内存访问外CPU的缓存。它实现了解决了一些问题与事件offcore Sandy Bridge EP(Intel Xeon E5第一代)。这是自动启用了各自的活动,也可作为一个独立的程序。有些实用程序来访问pci msrs空间或在命令行上。一个实用程序程序直接从用户空间的测压装置(pmumon.py)计算。这主要是用于测试和实验目的。一个图书馆自我剖析与 Linux因为Linux 3.3(对于自我剖析在旧的内核,您就可以使用简单的测压装置。一个示例程序地址剖析在Nehalem和后来英特尔cpu(addr)。一个程序,打印当 前运行的事件(事件rmap)。
