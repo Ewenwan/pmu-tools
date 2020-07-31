@@ -17,6 +17,8 @@ analysis on Intel CPUs on top of [Linux perf](https://perf.wiki.kernel.org/index
 
 [Execution-Cache-Memory Performance Model: Introduction and Validation](https://arxiv.org/pdf/1509.03118.pdf)
 
+[Quantifying performance bottlenecks of stencil computations using the Execution-Cache-Memory model](https://arxiv.org/pdf/1410.5010.pdf)
+
 pmu-tools 是运行在 Intel CPU 的 Linux 上的一个集工具配置文件收集和性能分析工具。它有一个包装器来“穿孔”,提供了一个完整的核心事件列表为常见的英特尔cpu。这允许您使用所有英特尔事件,不仅仅是内装式事件的穿孔。支持英特尔“offcore”事件在较旧的系统不支持这个在英特尔。Offcore事 件允许您配置文件位置的内存访问外CPU的缓存。它实现了解决了一些问题与事件offcore Sandy Bridge EP(Intel Xeon E5第一代)。这是自动启用了各自的活动,也可作为一个独立的程序。有些实用程序来访问pci msrs空间或在命令行上。一个实用程序程序直接从用户空间的测压装置(pmumon.py)计算。这主要是用于测试和实验目的。一个图书馆自我剖析与 Linux因为Linux 3.3(对于自我剖析在旧的内核,您就可以使用简单的测压装置。一个示例程序地址剖析在Nehalem和后来英特尔cpu(addr)。一个程序,打印当 前运行的事件(事件rmap)。
 
 现代 CPU 大多具有**性能监控单元（Performance Monitoring Unit, PMU)**，用于统计系统中发生的特定硬件事件，例如 **缓存未命中（Cache Miss）** 或者 **分支预测错误（Branch Misprediction）**等。同时，多个事件可以结合计算出一些高级指标，例如每指令周期数（CPI），缓存命中率等。一个特定的微体系架构可以通过 PMU 提供数百个事件。对于发现和解决特定的性能问题，我们很难从这数百个事件中挑选出那些真正有用的事件。 这需要我们深入了解微体系架构的设计和 PMU 规范，才能从原始事件数据中获取有用的信息。
